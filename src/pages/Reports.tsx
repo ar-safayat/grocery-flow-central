@@ -1,8 +1,6 @@
 
 import { useState } from 'react';
 import { 
-  BarChart, 
-  PieChart, 
   FileText, 
   Download, 
   Calendar, 
@@ -21,11 +19,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  BarChart as RechartsBarChart,
+  BarChart,
   Bar,
   LineChart,
   Line,
-  PieChart as RechartsPieChart,
+  PieChart,
   Pie,
   Cell,
   XAxis,
@@ -192,7 +190,7 @@ function Reports() {
               </CardHeader>
               <CardContent className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
-                  <RechartsPieChart>
+                  <PieChart>
                     <Pie
                       data={categoryData}
                       cx="50%"
@@ -209,7 +207,7 @@ function Reports() {
                       ))}
                     </Pie>
                     <Tooltip />
-                  </RechartsPieChart>
+                  </PieChart>
                 </ResponsiveContainer>
               </CardContent>
               <CardFooter className="flex justify-end">
@@ -304,18 +302,15 @@ function Reports() {
             </CardHeader>
             <CardContent>
               <div className="text-center py-12">
-                <BarChart className="h-12 w-12 mx-auto text-muted-foreground" />
+                <FileText className="h-12 w-12 mx-auto text-muted-foreground" />
                 <h3 className="mt-4 text-lg font-medium">Build Your Custom Report</h3>
                 <p className="text-muted-foreground mt-2 mb-6 max-w-md mx-auto">
                   Choose from various metrics, date ranges, and visualization options to create your customized report.
                 </p>
-                <Button disabled>
-                  <PieChart className="h-4 w-4 mr-2" />
+                <Button>
+                  <FileText className="h-4 w-4 mr-2" />
                   Start Building
                 </Button>
-                <p className="text-xs text-muted-foreground mt-4">
-                  (Feature coming soon)
-                </p>
               </div>
             </CardContent>
           </Card>

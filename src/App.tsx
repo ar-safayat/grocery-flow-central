@@ -17,10 +17,15 @@ import Customers from "./pages/Customers";
 import PurchaseOrders from "./pages/PurchaseOrders";
 import Delivery from "./pages/Delivery";
 import RiderPortal from "./pages/RiderPortal";
+import RiderPortalDashboard from "./pages/RiderPortalDashboard";
 import Accounting from "./pages/Accounting";
+import AccountingDashboard from "./pages/Accounting/Dashboard";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import Index from "./pages/Index";
+import ProductsPage from "./pages/Inventory/Products";
+import CategoriesPage from "./pages/Inventory/Categories";
 
 const queryClient = new QueryClient();
 
@@ -32,10 +37,8 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
+            <Route index element={<Index />} />
             <Route path="/login" element={<Login />} />
-            
-            {/* Redirect from index to dashboard */}
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
             
             {/* Protected routes inside MainLayout */}
             <Route path="/" element={
@@ -44,15 +47,43 @@ const App = () => (
               </ProtectedRoute>
             }>
               <Route path="dashboard" element={<Dashboard />} />
+              
+              {/* Inventory Routes */}
               <Route path="inventory" element={<Inventory />} />
+              <Route path="inventory/products" element={<ProductsPage />} />
+              <Route path="inventory/categories" element={<CategoriesPage />} />
+              
+              {/* Sales Routes */}
               <Route path="sales" element={<Sales />} />
+              <Route path="sales/orders" element={<Sales />} />
+              <Route path="sales/pos" element={<Sales />} />
+              
+              {/* Vendor & Customer Routes */}
               <Route path="vendors" element={<Vendors />} />
               <Route path="customers" element={<Customers />} />
+              
+              {/* Purchase Order Routes */}
               <Route path="purchase-orders" element={<PurchaseOrders />} />
+              
+              {/* Delivery Management Routes */}
               <Route path="delivery" element={<Delivery />} />
+              <Route path="delivery/list" element={<Delivery />} />
+              <Route path="delivery/riders" element={<Delivery />} />
+              
+              {/* Rider Portal */}
               <Route path="rider-portal" element={<RiderPortal />} />
-              <Route path="accounting" element={<Accounting />} />
+              <Route path="rider-portal/dashboard" element={<RiderPortalDashboard />} />
+              
+              {/* Accounting Routes */}
+              <Route path="accounting" element={<AccountingDashboard />} />
+              <Route path="accounting/dashboard" element={<AccountingDashboard />} />
+              <Route path="accounting/transactions" element={<Accounting />} />
+              <Route path="accounting/invoices" element={<Accounting />} />
+              
+              {/* Reports */}
               <Route path="reports" element={<Reports />} />
+              
+              {/* Settings */}
               <Route path="settings" element={<Settings />} />
             </Route>
             
