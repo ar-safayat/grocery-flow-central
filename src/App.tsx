@@ -17,6 +17,7 @@ import Customers from "./pages/Customers";
 import CustomerDetail from "./pages/CustomerDetail";
 import PurchaseOrders from "./pages/PurchaseOrders";
 import Delivery from "./pages/Delivery";
+import RidersPage from "./pages/Delivery/Riders";
 import RiderPortal from "./pages/RiderPortal";
 import RiderPortalDashboard from "./pages/RiderPortalDashboard";
 import Accounting from "./pages/Accounting";
@@ -27,6 +28,7 @@ import NotFound from "./pages/NotFound";
 import Index from "./pages/Index";
 import ProductsPage from "./pages/Inventory/Products";
 import CategoriesPage from "./pages/Inventory/Categories";
+import StockManagement from "./pages/Inventory/StockManagement";
 
 const queryClient = new QueryClient();
 
@@ -53,6 +55,7 @@ const App = () => (
               <Route path="inventory" element={<Inventory />} />
               <Route path="inventory/products" element={<ProductsPage />} />
               <Route path="inventory/categories" element={<CategoriesPage />} />
+              <Route path="inventory/stock" element={<StockManagement />} />
               
               {/* Sales Routes */}
               <Route path="sales" element={<Sales />} />
@@ -70,7 +73,7 @@ const App = () => (
               {/* Delivery Management Routes */}
               <Route path="delivery" element={<Delivery />} />
               <Route path="delivery/list" element={<Delivery />} />
-              <Route path="delivery/riders" element={<Delivery />} />
+              <Route path="delivery/riders" element={<RidersPage />} />
               
               {/* Rider Portal */}
               <Route path="rider-portal" element={<RiderPortal />} />

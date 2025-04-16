@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import {
   Truck,
@@ -138,7 +139,7 @@ const mockDeliveries: Delivery[] = Array(8).fill(null).map((_, index) => ({
   proofOfDelivery: index % 5 === 0 ? ['delivery-proof.jpg'] : [],
   createdAt: new Date(2023, 5, Math.floor(Math.random() * 30) + 1),
   updatedAt: new Date(),
-});
+}));
 
 mockDeliveries.forEach(delivery => {
   delivery.order.items.forEach(item => {
