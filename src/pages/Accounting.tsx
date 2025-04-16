@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import {
   Search,
@@ -11,6 +10,7 @@ import {
   MoreHorizontal,
   Download,
   ArrowUpDown,
+  BarChart3
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -40,8 +40,8 @@ import {
 } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Transaction } from '@/types';
+import { TransactionForm } from '@/components/accounting/TransactionForm';
 
-// Mock transactions data
 const mockTransactions: Transaction[] = Array(20).fill(null).map((_, index) => ({
   id: `t-${1000 + index}`,
   type: index % 3 === 0 ? 'expense' : 'income',
@@ -79,6 +79,8 @@ const mockTransactions: Transaction[] = Array(20).fill(null).map((_, index) => (
 function AccountingPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredTransactions, setFilteredTransactions] = useState(mockTransactions);
+  const [formOpen, setFormOpen] = useState(false);
+  const [currentTransaction, setCurrentTransaction] = useState<Transaction | undefined>(undefined);
   const { toast } = useToast();
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -109,6 +111,42 @@ function AccountingPage() {
     // In a real app, this would generate and download a CSV file
   };
 
+  const handleAddTransaction = () => {
+    setCurrentTransaction(undefined);
+    setFormOpen(true);
+  };
+
+  const handleEditTransaction = (transaction: Transaction) => {
+    setCurrentTransaction(transaction);
+    setFormOpen(true);
+  };
+
+  const handleSaveTransaction = (transactionData: Partial<Transaction>) => {
+    if (currentTransaction) {
+      const updated = filteredTransactions.map(t => 
+        t.id === currentTransaction.id ? { ...currentTransaction, ...transactionData } as Transaction : t
+      );
+      setFilteredTransactions(updated);
+      
+      toast({
+        title: "Transaction Updated",
+        description: "The transaction has been successfully updated.",
+      });
+    } else {
+      const newTransaction: Transaction = {
+        id: `t-${1000 + filteredTransactions.length + 1}`,
+        ...transactionData as any
+      } as Transaction;
+      
+      setFilteredTransactions([newTransaction, ...filteredTransactions]);
+      
+      toast({
+        title: "Transaction Added",
+        description: "The new transaction has been successfully added.",
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -118,7 +156,7 @@ function AccountingPage() {
             Manage transactions and financial records
           </p>
         </div>
-        <Button>
+        <Button onClick={handleAddTransaction}>
           <Plus className="h-4 w-4 mr-2" />
           New Transaction
         </Button>
@@ -215,7 +253,7 @@ function AccountingPage() {
                                 <FileText className="h-4 w-4 mr-2" />
                                 View Details
                               </DropdownMenuItem>
-                              <DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleEditTransaction(transaction)}>
                                 <DollarSign className="h-4 w-4 mr-2" />
                                 Edit Transaction
                               </DropdownMenuItem>
@@ -290,6 +328,13 @@ function AccountingPage() {
           </Card>
         </TabsContent>
       </Tabs>
+      
+      <TransactionForm
+        open={formOpen}
+        onOpenChange={setFormOpen}
+        transaction={currentTransaction}
+        onSave={handleSaveTransaction}
+      />
     </div>
   );
 }

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import {
   Truck,
@@ -26,7 +25,6 @@ import { useToast } from '@/hooks/use-toast';
 import { Delivery, DeliveryStatus } from '@/types';
 import { format } from 'date-fns';
 
-// Mock data for deliveries
 const mockDeliveries: Delivery[] = Array(8).fill(null).map((_, index) => ({
   id: `d-${1000 + index}`,
   deliveryNumber: `DEL-${10000 + index}`,
@@ -82,7 +80,7 @@ const mockDeliveries: Delivery[] = Array(8).fill(null).map((_, index) => ({
       unitPrice: parseFloat((Math.random() * 20 + 1.99).toFixed(2)),
       tax: parseFloat((Math.random() * 2).toFixed(2)),
       discount: parseFloat((Math.random() * 5).toFixed(2)),
-      total: 0, // Calculated below
+      total: 0,
     })),
     status: ['pending', 'processing', 'ready-for-delivery', 'out-for-delivery'][index % 4] as any,
     paymentStatus: ['pending', 'partial', 'paid'][index % 3] as any,
@@ -111,7 +109,7 @@ const mockDeliveries: Delivery[] = Array(8).fill(null).map((_, index) => ({
     shippingCost: parseFloat((Math.random() * 10 + 5).toFixed(2)),
     tax: parseFloat((Math.random() * 20).toFixed(2)),
     discount: parseFloat((Math.random() * 10).toFixed(2)),
-    total: 0, // Calculated below
+    total: 0,
     notes: index % 2 === 0 ? 'Please leave at the front door.' : '',
     createdAt: new Date(2023, 5, Math.floor(Math.random() * 30) + 1),
     updatedAt: new Date(),
@@ -140,9 +138,8 @@ const mockDeliveries: Delivery[] = Array(8).fill(null).map((_, index) => ({
   proofOfDelivery: index % 5 === 0 ? ['delivery-proof.jpg'] : [],
   createdAt: new Date(2023, 5, Math.floor(Math.random() * 30) + 1),
   updatedAt: new Date(),
-}));
+});
 
-// Calculate totals
 mockDeliveries.forEach(delivery => {
   delivery.order.items.forEach(item => {
     item.total = item.quantity * item.unitPrice - item.discount;
@@ -162,14 +159,12 @@ function RiderPortalDashboard() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Filter deliveries by status
     setActiveDeliveries(mockDeliveries.filter(d => d.status === 'assigned' || d.status === 'in-progress'));
     setCompletedDeliveries(mockDeliveries.filter(d => d.status === 'completed'));
     setPendingDeliveries(mockDeliveries.filter(d => d.status === 'pending'));
   }, []);
 
   const updateDeliveryStatus = (deliveryId: string, newStatus: DeliveryStatus) => {
-    // Update delivery status (in a real app, this would be an API call)
     const updatedActiveDeliveries = activeDeliveries.map(delivery => {
       if (delivery.id === deliveryId) {
         return { ...delivery, status: newStatus };
@@ -180,7 +175,6 @@ function RiderPortalDashboard() {
     const delivery = activeDeliveries.find(d => d.id === deliveryId);
     
     if (newStatus === 'completed' && delivery) {
-      // Move from active to completed
       setActiveDeliveries(activeDeliveries.filter(d => d.id !== deliveryId));
       setCompletedDeliveries([
         { ...delivery, status: newStatus, actualDeliveryDate: new Date() },
@@ -200,15 +194,12 @@ function RiderPortalDashboard() {
       });
     }
   };
-  
+
   const toggleStatus = () => {
     const newStatus = status === 'offline' ? 'available' : status === 'available' ? 'busy' : 'offline';
     setStatus(newStatus);
     
-    // Get current location when going online
-    if (newStatus !== 'offline' && !currentLocation) {
-      // In real app, we would use navigator.geolocation
-      // For this demo, set a dummy location
+    if (newStatus === 'available' || newStatus === 'busy') {
       setCurrentLocation({
         latitude: 40.7128,
         longitude: -74.0060

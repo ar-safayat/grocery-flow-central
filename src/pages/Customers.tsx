@@ -1,24 +1,22 @@
 
 import { useState } from 'react';
-import {
-  Search,
-  Plus,
-  Filter,
-  MoreHorizontal,
-  User,
+import { Link } from 'react-router-dom';
+import { 
+  Search, 
+  Plus, 
+  Filter, 
+  User, 
+  Mail, 
   Phone,
-  Mail,
-  MapPin,
-  FileText,
-  Edit,
-  Trash2,
-  ChevronLeft,
-  ChevronRight,
-  ShoppingCart,
-  DollarSign
+  MoreHorizontal, 
+  ClipboardCheck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { 
+  Card, 
+  CardContent
+} from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -36,11 +34,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
+import { format } from 'date-fns';
 import { Customer } from '@/types';
+import { useToast } from '@/hooks/use-toast';
 
-// Generate mock customers data
+// Mock customers data
 const mockCustomers: Customer[] = Array(15).fill(null).map((_, index) => ({
-  id: `c-${1000 + index}`,
+  id: `c-${3000 + index}`,
   name: [
     'John Smith',
     'Sarah Johnson',
@@ -50,13 +50,13 @@ const mockCustomers: Customer[] = Array(15).fill(null).map((_, index) => ({
     'Jennifer Taylor',
     'William Anderson',
     'Elizabeth Thomas',
-    'David Moore',
-    'Lisa Jackson',
-    'James White',
-    'Mary Garcia',
-    'Richard Martinez',
-    'Patricia Robinson',
-    'Charles Lewis',
+    'David Martinez',
+    'Lisa Garcia',
+    'James Rodriguez',
+    'Mary Lee',
+    'Richard Hernandez',
+    'Patricia Lopez',
+    'Joseph Gonzalez'
   ][index],
   email: `customer${index}@example.com`,
   phone: `(555) ${100 + index}-${1000 + index}`,
@@ -65,7 +65,17 @@ const mockCustomers: Customer[] = Array(15).fill(null).map((_, index) => ({
     {
       id: `addr-${1000 + index}`,
       type: 'shipping',
-      street: `${1000 + index} Main Street`,
+      street: `${1000 + index} ${['Main', 'Oak', 'Maple', 'Cedar', 'Pine'][index % 5]} Street`,
+      city: 'Cityville',
+      state: 'State',
+      postalCode: `${10000 + index}`,
+      country: 'Country',
+      isDefault: true,
+    },
+    {
+      id: `addr-${2000 + index}`,
+      type: 'billing',
+      street: `${1000 + index} ${['Main', 'Oak', 'Maple', 'Cedar', 'Pine'][index % 5]} Street`,
       city: 'Cityville',
       state: 'State',
       postalCode: `${10000 + index}`,
@@ -73,22 +83,23 @@ const mockCustomers: Customer[] = Array(15).fill(null).map((_, index) => ({
       isDefault: true,
     }
   ],
-  notes: '',
-  createdAt: new Date(2023, 0, 1),
-  totalOrders: Math.floor(Math.random() * 20),
-  totalSpent: parseFloat((Math.random() * 2000 + 100).toFixed(2)),
+  notes: index % 4 === 0 ? 'Prefers delivery in the evening' : '',
+  createdAt: new Date(2023, Math.floor(index / 3), 1 + (index % 28)),
+  totalOrders: Math.floor(Math.random() * 20) + 1,
+  totalSpent: parseFloat((Math.random() * 2000 + 50).toFixed(2)),
 }));
 
-function Customers() {
+function CustomersPage() {
+  const [customers, setCustomers] = useState(mockCustomers);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filteredCustomers, setFilteredCustomers] = useState(mockCustomers);
+  const { toast } = useToast();
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const term = e.target.value;
     setSearchTerm(term);
     
     if (!term.trim()) {
-      setFilteredCustomers(mockCustomers);
+      setCustomers(mockCustomers);
       return;
     }
     
@@ -99,7 +110,17 @@ function Customers() {
         customer.phone.includes(term)
     );
     
-    setFilteredCustomers(filtered);
+    setCustomers(filtered);
+  };
+
+  const handleDeleteCustomer = (id: string) => {
+    const updatedCustomers = customers.filter(customer => customer.id !== id);
+    setCustomers(updatedCustomers);
+    
+    toast({
+      title: "Customer Deleted",
+      description: "The customer has been successfully deleted.",
+    });
   };
 
   return (
@@ -108,7 +129,7 @@ function Customers() {
         <div>
           <h1 className="text-3xl font-bold">Customers</h1>
           <p className="text-muted-foreground">
-            Manage your customer relationships
+            Manage your customer database
           </p>
         </div>
         <Button>
@@ -129,118 +150,108 @@ function Customers() {
           />
         </div>
         
-        <Button variant="outline" size="icon">
-          <Filter className="h-4 w-4" />
+        <Button variant="outline" className="flex-shrink-0">
+          <Filter className="h-4 w-4 mr-2" />
+          Filter
         </Button>
       </div>
       
-      <div className="border rounded-md">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Customer</TableHead>
-              <TableHead>Contact Info</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Orders</TableHead>
-              <TableHead>Spent</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredCustomers.map((customer) => (
-              <TableRow key={customer.id}>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
-                      <User className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                    <div>
-                      <div className="font-medium">{customer.name}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {customer.id}
-                      </div>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="space-y-1">
-                    <div className="flex items-center text-sm">
-                      <Mail className="h-3.5 w-3.5 mr-1 text-muted-foreground" />
-                      <span>{customer.email}</span>
-                    </div>
-                    <div className="flex items-center text-sm">
-                      <Phone className="h-3.5 w-3.5 mr-1 text-muted-foreground" />
-                      <span>{customer.phone}</span>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Badge variant={customer.type === 'business' ? 'secondary' : 'outline'}>
-                    {customer.type === 'business' ? 'Business' : 'Individual'}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center">
-                    <ShoppingCart className="h-3.5 w-3.5 mr-1 text-muted-foreground" />
-                    <span>{customer.totalOrders}</span>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center">
-                    <DollarSign className="h-3.5 w-3.5 mr-1 text-muted-foreground" />
-                    <span>${customer.totalSpent.toFixed(2)}</span>
-                  </div>
-                </TableCell>
-                <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuItem>
-                        <FileText className="h-4 w-4 mr-2" />
-                        View Details
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Edit className="h-4 w-4 mr-2" />
-                        Edit Customer
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <ShoppingCart className="h-4 w-4 mr-2" />
-                        View Orders
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-destructive">
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-      
-      <div className="flex items-center justify-between">
-        <div className="text-sm text-muted-foreground">
-          Showing <strong>1-10</strong> of <strong>{filteredCustomers.length}</strong> customers
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button variant="outline" size="sm">
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" size="sm">
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
+      <Card>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Contact</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Orders</TableHead>
+                  <TableHead>Total Spent</TableHead>
+                  <TableHead>Since</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {customers.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="h-24 text-center">
+                      No customers found
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  customers.map((customer) => (
+                    <TableRow key={customer.id}>
+                      <TableCell>
+                        <Link 
+                          to={`/customers/${customer.id}`} 
+                          className="font-medium hover:underline flex items-center"
+                        >
+                          <User className="h-4 w-4 mr-2 text-muted-foreground" />
+                          {customer.name}
+                        </Link>
+                      </TableCell>
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div className="flex items-center text-sm">
+                            <Mail className="h-3.5 w-3.5 mr-1 text-muted-foreground" />
+                            <span className="text-muted-foreground">{customer.email}</span>
+                          </div>
+                          <div className="flex items-center text-sm">
+                            <Phone className="h-3.5 w-3.5 mr-1 text-muted-foreground" />
+                            <span className="text-muted-foreground">{customer.phone}</span>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="capitalize">
+                          {customer.type}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {customer.totalOrders}
+                      </TableCell>
+                      <TableCell>
+                        ${customer.totalSpent.toFixed(2)}
+                      </TableCell>
+                      <TableCell>
+                        {format(customer.createdAt, 'MMM dd, yyyy')}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem>
+                              <Link to={`/customers/${customer.id}`} className="flex items-center w-full">
+                                <User className="h-4 w-4 mr-2" />
+                                View Details
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <ClipboardCheck className="h-4 w-4 mr-2" />
+                              New Order
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => handleDeleteCustomer(customer.id)}>
+                              Delete Customer
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
 
-export default Customers;
+export default CustomersPage;

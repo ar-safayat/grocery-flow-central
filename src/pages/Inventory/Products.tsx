@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import {
   Search,
@@ -37,8 +36,8 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Product } from '@/types';
+import { ProductForm } from '@/components/inventory/ProductForm';
 
-// Mock products data
 const mockProducts: Product[] = Array(20).fill(null).map((_, index) => ({
   id: `p-${1000 + index}`,
   name: [
@@ -85,6 +84,8 @@ function ProductsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredProducts, setFilteredProducts] = useState(mockProducts);
   const [isLoading, setIsLoading] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
+  const [currentProduct, setCurrentProduct] = useState<Product | undefined>(undefined);
   const { toast } = useToast();
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -132,6 +133,44 @@ function ProductsPage() {
     }
   };
 
+  const handleAddProduct = () => {
+    setCurrentProduct(undefined);
+    setFormOpen(true);
+  };
+
+  const handleEditProduct = (product: Product) => {
+    setCurrentProduct(product);
+    setFormOpen(true);
+  };
+
+  const handleSaveProduct = (productData: Partial<Product>) => {
+    setIsLoading(true);
+    
+    // Simulate API call
+    setTimeout(() => {
+      if (currentProduct) {
+        // Update existing product
+        const updated = filteredProducts.map(p => 
+          p.id === currentProduct.id ? { ...currentProduct, ...productData } as Product : p
+        );
+        setFilteredProducts(updated);
+      } else {
+        // Add new product
+        const newProduct: Product = {
+          id: `p-${1000 + filteredProducts.length + 1}`,
+          dateAdded: new Date(),
+          lastUpdated: new Date(),
+          images: ['/placeholder.svg'],
+          ...productData as any
+        } as Product;
+        
+        setFilteredProducts([newProduct, ...filteredProducts]);
+      }
+      
+      setIsLoading(false);
+    }, 800);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -141,7 +180,7 @@ function ProductsPage() {
             Manage your inventory products
           </p>
         </div>
-        <Button>
+        <Button onClick={handleAddProduct}>
           <Plus className="h-4 w-4 mr-2" />
           Add Product
         </Button>
@@ -254,7 +293,7 @@ function ProductsPage() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={stockStatus.badge as "default" | "secondary" | "destructive" | "outline" | "success" | "warning"}>
+                        <Badge variant={stockStatus.badge}>
                           {stockStatus.status}
                         </Badge>
                       </TableCell>
@@ -271,7 +310,7 @@ function ProductsPage() {
                               <Package2 className="h-4 w-4 mr-2" />
                               View Details
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleEditProduct(product)}>
                               <Edit className="h-4 w-4 mr-2" />
                               Edit Product
                             </DropdownMenuItem>
@@ -298,6 +337,13 @@ function ProductsPage() {
           </Table>
         </div>
       </Card>
+
+      <ProductForm 
+        open={formOpen} 
+        onOpenChange={setFormOpen}
+        product={currentProduct}
+        onSave={handleSaveProduct}
+      />
     </div>
   );
 }

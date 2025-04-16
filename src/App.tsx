@@ -14,6 +14,7 @@ import Inventory from "./pages/Inventory";
 import Sales from "./pages/Sales";
 import Vendors from "./pages/Vendors";
 import Customers from "./pages/Customers";
+import CustomerDetail from "./pages/CustomerDetail";
 import PurchaseOrders from "./pages/PurchaseOrders";
 import Delivery from "./pages/Delivery";
 import RiderPortal from "./pages/RiderPortal";
@@ -61,6 +62,7 @@ const App = () => (
               {/* Vendor & Customer Routes */}
               <Route path="vendors" element={<Vendors />} />
               <Route path="customers" element={<Customers />} />
+              <Route path="customers/:id" element={<CustomerDetail />} />
               
               {/* Purchase Order Routes */}
               <Route path="purchase-orders" element={<PurchaseOrders />} />
